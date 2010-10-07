@@ -17,7 +17,7 @@
 # along with linez. If not, see <http://www.gnu.org/licenses/>.
 #++
 
-require 'lib/line'
+load 'lib/line.rb'
 
 class Linez < Hash
   def add_line (ws)
