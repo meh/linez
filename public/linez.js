@@ -16,3 +16,32 @@
  * along with linez. If not, see <http://www.gnu.org/licenses/>.
  ****************************************************************************/
 
+Event.observe(document, 'dom:loaded', function () {
+    var canvas = new Element('canvas', { id: 'canvas' });
+
+    var resize = function () {
+        canvas.width  = document.viewport.getWidth();
+        canvas.height = document.viewport.getHeight();
+    }
+
+    document.body.appendChild(canvas);
+
+    Event.observe(window, 'resize', resize);
+    resize();
+
+    Linez.start(canvas);
+});
+
+Linez = (function () {
+    var _canvas;
+    var _ctx;
+
+    function start (canvas) {
+        _canvas = canvas;
+        _ctx    = canvas.getContext('2d');
+    }
+
+    return {
+        start: start
+    };
+})();
