@@ -1,13 +1,14 @@
+!!! 5
 %html
   %head
     %title linez - i herd u liek linez
 
     %link{ :rel => 'stylesheet', :type => 'text/css', :href => 'style.css' }
 
-    %script{ :type => 'text/javascript', :src => 'miniLOL-framework.full.js'}
-    %script{ :type => 'text/javascript', :src => 'linez.js'}
+    %script{ :type => 'text/javascript', :src => 'miniLOL-framework.full.js' }
+    %script{ :type => 'text/javascript', :src => 'linez.js' }
 
   %body
     You need javascript and a WebSocket enabled browser.
 
-    %input{ :type => 'text', :id => 'color', :value => '#000000', :onkeypress => %{if (event.keyCode == 13) { linez.line.color = this.value; linez.line.send('color') }} }
+    %input{ :type => 'text', :id => 'color', :value => '#000000', :onblur => %{if (event.keyCode == 13) { linez.line.color = this.value; linez.line.send('color') }}, :onkeypress => %{if (event.keyCode == 13) { linez.line.color = this.value; linez.line.send('color') }} }

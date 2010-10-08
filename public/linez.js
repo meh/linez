@@ -277,11 +277,8 @@ Linez.Connection = Class.create({
             }.bind(this);
 
             this.socket.onclose = function (event) {
+                console.log(event);
                 alert('The server closed the connection.');
-            }.bind(this);
-
-            this.socket.onerror = function (event) {
-                alert(event);
             }.bind(this);
 
             this.send = function (data) {
@@ -295,7 +292,8 @@ Linez.Connection = Class.create({
         var data = data[1];
 
         switch (what) {
-            case 'map': this.linez.map.update(data).render(); break;
+            case 'map':   this.linez.map.update(data).render(); break;
+            case 'error': alert(data.message); break;
         }
     },
 

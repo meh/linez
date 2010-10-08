@@ -94,7 +94,11 @@ EventMachine.run {
   
             case what
               when :color
-                line.color = data
+                begin
+                  line.color = data
+                rescue
+                  line.send([:error, { :message => 'What you inserted is not an hexadecimal color.', :code => 11 }].to_json)
+                end
             end
         end rescue nil
       }
