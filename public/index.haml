@@ -9,3 +9,5 @@
 
   %body
     You need javascript and a WebSocket enabled browser.
+
+    %input{ :type => 'text', :id => 'color', :value => '#000000', :onkeypress => %{if (event.keyCode == 13) { linez.line.color = this.value; linez.line.send('color') }} }

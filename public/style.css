@@ -8,6 +8,19 @@
     position: absolute;
     top: 0;
     left: 0;
-    z-index: 9001;
+    z-index: 23;
     background: white;
+}
+
+#color {
+    position: fixed;
+    right: 10px;
+    top: 10px;
+
+    z-index: 42;
+    background: white;
+    color: black;
+    border: 1px dashed black;
+    font-size: 10px;
+    font-family: monospace;
 }

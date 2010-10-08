@@ -18,7 +18,10 @@
 #++
 
 class Map
-  def initialize
+  attr_reader :linez
+
+  def initialize (linez)
+    @linez     = linez
     @positions = {}
   end
 
@@ -28,5 +31,43 @@ class Map
 
   def []= (x, y, value)
     @positions["#{x};#{y}"] = value
+  end
+
+  def update (what)
+    if what.is_a?(Linez::Line)
+      self[what.x, what.y] = what.color
+    end
+
+    self
+  end
+
+  def send (line, what=nil)
+    data = []
+
+    if !what
+      @positions.each {|position, value|
+        position = position.match(/([\-+]?\d+);([\-+]?\d+)/)
+
+        data.push(:x => position[1].to_i, :y => position[2].to_i, :color => value)
+      }
+    else
+      if what.is_a? Linez::Line
+        data.push(what.to_pixel)
+      end
+    end
+
+    debug data.to_json
+
+    line.send [:map, data]
+
+    self
+  end
+
+  def broadcast (what, &block)
+    @linez.each_value {|line|
+      send(line, what) if !block_given? || block.call(line)
+    }
+
+    self
   end
 end

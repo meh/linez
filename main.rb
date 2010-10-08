@@ -25,11 +25,17 @@ require 'em-websocket'
 require 'json'
 require 'haml'
 
+def debug (*args)
+  if ENV['DEBUG']
+    puts *args
+  end
+end
+
 load 'lib/map.rb'
 load 'lib/linez.rb'
 
-map   = Map.new
 linez = Linez.new
+map   = Map.new(linez)
 
 EventMachine.run {
   class Application < Sinatra::Application
@@ -44,45 +50,63 @@ EventMachine.run {
     end
   end
 
-  EventMachine::WebSocket.start(:host => '0.0.0.0', :port => 8080) {|ws|
-    ws.onopen {
-      line = linez.add_line(ws)
+  EventMachine::WebSocket.start(:host => '0.0.0.0', :port => 8080) {|socket|
+    socket.onopen {
+      line = linez.add_line(socket)
+
+      debug "#{line.inspect}: connected."
+
+      map.send(line)
   
-      ws.onmessage {|msg|
-        msg = JSON.parse(msg, :symbolize_names => true) rescue break
+      socket.onmessage {|msg|
+        begin
+          msg = JSON.parse(msg, :symbolize_names => true)
+        rescue
+          debug $!
+        end
+
+        debug "#{line.inspect}: #{msg.inspect}"
   
-        break unless msg.is_a?(Array)
+        next unless msg.is_a?(Array)
   
-        command = msg[0]
+        command = msg[0].to_sym
         data    = msg[1]
   
         case command
           when :move
             if !line.near(data)
-              ws.send([:error, { :message => 'HAAAAAAAAAAAAAX', :code => 20 }].to_json)
-              break
+              line.send([:error, { :message => 'HAAAAAAAAAAAAAX', :code => 20 }].to_json)
+              next
             end
   
             if !line.move(data)
-              ws.send([:error, { :message => 'Something went wrong in your movement.', :code => 21 }].to_json)
-              break
+              line.send([:error, { :message => 'Something went wrong in your movement.', :code => 21 }].to_json)
+              next
             end
-  
-            map.update(line).broadcast(line.position)
+
+            map.update(line).broadcast(line) {|on|
+              on != line
+            }
   
           when :set
-            what = data[0]
+            what = data[0].to_sym
             data = data[1]
   
             case what
               when :color
                 line.color = data
             end
-        end
+        end rescue nil
+      }
+
+      socket.onerror {|reason|
+        debug reason.inspect
       }
   
-      ws.onclose {
+      socket.onclose {
         linez.delete(line)
+
+        debug "#{line.inspect}: disconnected."
       }
     }
   }

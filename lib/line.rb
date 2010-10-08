@@ -20,16 +20,24 @@
 class Linez < Hash
 
 class Line
-  attr_accessor :color
+  attr_reader :id, :x, :y, :color
 
-  attr_reader :id, :x, :y
-
-  def initialize (ws, id)
-    @ws = ws
-    @id = id
+  def initialize (socket, id)
+    @socket = socket
+    @id     = id
 
     @x = 0
     @y = 0
+
+    @color = '#000000'
+  end
+
+  def color= (value)
+    if value.match(/#([0-9a-fA-F]){6}/)
+      @color = value
+    else
+      raise ArgumentError.new('Value has to be an hexadecimal color.')
+    end
   end
 
   def position
@@ -42,6 +50,18 @@ class Line
 
   def move (position)
     @x, @y = position[:x], position[:y] if near(position)
+  end
+
+  def send (data)
+    @socket.send data.to_json
+  end
+
+  def to_pixel
+    { :x => @x, :y => @y, :color => @color }
+  end
+
+  def to_s
+    "#<Line: #{@id} (#{@x};#{@y}) #{@color}>"
   end
 end
 
